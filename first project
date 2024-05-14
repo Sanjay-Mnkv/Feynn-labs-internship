@@ -1,0 +1,99 @@
+**Product Idea: Maternal Health Guardian (MHG)**
+
+**Problem Statement:**
+Maternal health complications remain a significant concern globally, with preventable factors often leading to adverse outcomes for mothers and babies.
+
+**Market Needs:**
+- Healthcare providers require tools to identify maternal health risks early and intervene to prevent complications during pregnancy and childbirth.
+- Expecting mothers need personalized support and guidance to navigate their pregnancy journey and mitigate potential risks.
+- There is a growing demand for technology-driven solutions that leverage data science and machine learning to improve maternal health outcomes.
+
+**Business Model:**
+MHG will offer a comprehensive maternal health risk prediction and management platform for healthcare providers and expecting mothers. Revenue streams will include:
+1. Subscription Fees: Tiered subscription plans for healthcare organizations based on the number of users and access to features.
+2. Individual Subscriptions: Freemium model with basic features available for free, and premium subscriptions offering advanced analytics and personalized support.
+3. Customization Services: Additional revenue from custom development and integration services for healthcare organizations.
+
+**Product Design:**
+MHG will utilize electronic health records (EHRs), wearable devices, and machine learning algorithms to predict and manage maternal health risks. The product design includes the following components:
+
+1. Data Integration: Integration with electronic health record systems to access comprehensive medical history, prenatal care records, lab results, and imaging studies.
+2. Risk Prediction Models: Developing predictive models using machine learning algorithms to assess maternal health risks based on factors such as medical history, demographics, lifestyle, and genetic predisposition.
+3. Early Warning System: Implementing an early warning system to alert healthcare providers and expecting mothers of potential health risks, such as gestational diabetes, preeclampsia, or preterm labor.
+4. Personalized Care Plans: Generating personalized care plans for expecting mothers based on their individual risk profiles, including recommendations for prenatal care, lifestyle modifications, and monitoring protocols.
+5. Remote Monitoring: Offering remote monitoring capabilities through wearable devices and mobile apps to track maternal health metrics, provide real-time feedback, and facilitate virtual consultations with healthcare providers.
+6. Patient Education and Engagement: Providing educational resources, interactive tools, and support communities to empower expecting mothers to make informed decisions about their health and well-being throughout pregnancy and childbirth.
+
+MHG will serve as a trusted companion for expecting mothers and healthcare providers, leveraging data-driven insights and personalized support to improve maternal health outcomes and promote a positive pregnancy experience.
+
+ML Code
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+import scipy.stats as stats
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import FunctionTransformer
+from sklearn.compose import ColumnTransformer
+df = pd.read_csv('Maternal Health Risk Data Set.csv')
+df
+df.shape
+sns.countplot(data=df, x="RiskLevel")
+risk_mapping = {
+    'low risk': 0,
+    'mid risk': 1,
+    'high risk': 2
+}
+
+df["RiskLevel"] = df["RiskLevel"].map(risk_mapping)
+
+final_df = df.copy()
+sns.countplot(data=df, x="RiskLevel")
+df.isnull().sum()
+df.describe()
+plt.hist(df["Age"])
+print(min(df["Age"]))
+print(max(df["Age"]))
+age_bins = [10, 20, 30, 40, 50, 60, 70, float('inf')]
+bin_labels = ['10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70+']
+df['age_group'] = pd.cut(df['Age'], bins=age_bins, labels=bin_labels, right=False)
+new_df = df.copy(deep=False)
+sns.countplot(data=new_df, x="age_group")
+df.drop(columns=["age_group", "RiskLevel"], axis=1, inplace=True)
+df.head()
+numeric_features = [feature for feature in df.columns if df[feature].dtype != 'O']
+
+plt.figure(figsize=(15, 100))
+for i, col in enumerate(numeric_features):
+    plt.subplot(60, 3, i+1)
+    sns.distplot(x=df[col], color='indianred')
+    plt.xlabel(col, weight='bold')
+    plt.tight_layout()
+numeric_columns = final_df.select_dtypes(include=[np.number]).columns.difference(['RiskLevel'])
+final_df[numeric_columns] = final_df[numeric_columns].apply(lambda x: np.log1p(x))
+X = final_df.drop(columns=["RiskLevel"])
+y = final_df["RiskLevel"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=12)
+clf = LogisticRegression()
+clf2 = DecisionTreeClassifier()
+clf.fit(X_train,y_train)
+clf2.fit(X_train,y_train)
+y_pred = clf.predict(X_test)
+y_pred1 = clf2.predict(X_test)
+print("Accuracy LR",accuracy_score(y_test,y_pred))
+print("Accuracy DT",accuracy_score(y_test,y_pred1))
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+rf = RandomForestClassifier()
+xgb = XGBClassifier()
+rf.fit(X_train,y_train)
+xgb.fit(X_train,y_train)
+y_pred = rf.predict(X_test)
+y_pred1 = xgb.predict(X_test)
+print("Accuracy RF",accuracy_score(y_test,y_pred))
+print("Accuracy XGB",accuracy_score(y_test,y_pred1))
