@@ -1,0 +1,38 @@
+import pandas as pd
+
+df = pd.read_csv('ev-charging-stations-india.csv')
+print(df.head())
+
+print(df.isnull().sum())
+df = df.dropna()
+
+print(df.duplicated().sum())
+df = df.drop_duplicates()
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.longitude, df.latitude))
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+ax = world[world.name == "India"].plot(figsize=(10, 10), color='white', edgecolor='black')
+gdf.plot(ax=ax, marker='o', color='red', markersize=5)
+plt.show()
+
+state_counts = df['state'].value_counts()
+print(state_counts)
+
+state_counts.plot(kind='bar', figsize=(10, 6))
+plt.title('Number of Charging Stations by State')
+plt.xlabel('State')
+plt.ylabel('Number of Charging Stations')
+plt.show()
+
+city_counts = df.groupby('city').size().reset_index(name='counts')
+top_cities = city_counts.sort_values(by='counts', ascending=False).head(10)
+print(top_cities)
+
+top_cities.plot(kind='bar', x='city', y='counts', figsize=(10, 6))
+plt.title('Top Cities by Number of Charging Stations')
+plt.xlabel('City')
+plt.ylabel('Number of Charging Stations')
+plt.show()
