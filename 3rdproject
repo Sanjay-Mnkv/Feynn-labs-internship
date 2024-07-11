@@ -1,0 +1,43 @@
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+data = pd.read_csv('health_data.csv) 
+X = data.drop('risk', axis=1)
+y = data['risk']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+print(f'Model Accuracy: {accuracy * 100:.2f}%'
+plt.figure(figsize=(10, 6))
+sns.histplot(data['heart_rate'], bins=30, kde=True)
+plt.title('Distribution of Heart Rate')
+plt.xlabel('Heart Rate')
+plt.ylabel('Frequency')
+plt.savefig('/mnt/data/distribution_of_heart_rate.png')
+plt.show()
+plt.figure(figsize=(10, 6))
+sns.boxplot(data['blood_pressure'])
+plt.title('Boxplot of Blood Pressure')
+plt.xlabel('Blood Pressure')
+plt.savefig('/mnt/data/boxplot_of_blood_pressure.png')
+plt.show()
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='activity_level', y='heart_rate', hue='risk_level', data=data)
+plt.title('Scatter Plot of Activity Level vs. Heart Rate')
+plt.xlabel('Activity Level')
+plt.ylabel('Heart Rate')
+plt.legend(title='Risk Level')
+plt.savefig('/mnt/data/scatter_plot_activity_vs_heart_rate.png')
+plt.show()
+corr_matrix = data.corr()
+plt.figure(figsize=(12, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title('Correlation Heatmap')
+plt.savefig('/mnt/data/correlation_heatmap.png')
+plt.show()
